@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: 'Inter', sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[#0A0F1E] text-white transition-colors duration-300;
+  }
+
+  html.light body {
+    @apply bg-[#F8FAFC] text-gray-900;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded-full;
+  }
+
+  html.light ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  html.light ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  .gradient-btn {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold rounded-xl transition-all duration-200;
+  }
+
+  .card-dark {
+    @apply bg-gray-900 border border-gray-800 rounded-2xl shadow-xl;
+  }
+
+  .card-light {
+    @apply bg-white border border-gray-100 rounded-2xl shadow-md;
+  }
+
+  .input-dark {
+    @apply bg-gray-800 border border-gray-700 text-white rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+
+  .input-light {
+    @apply bg-white border border-gray-200 text-gray-900 rounded-xl p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+}
