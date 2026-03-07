@@ -86,7 +86,6 @@ export default function ReportDetail() {
         }
       }
 
-      // Status color map
       const statusColors: Record<string, [number, number, number]> = {
         normal: [5, 150, 105],
         borderline: [217, 119, 6],
@@ -94,7 +93,6 @@ export default function ReportDetail() {
         unknown: [107, 114, 128],
       }
 
-      // Row bg for status
       const statusRowBg: Record<string, [number, number, number]> = {
         normal: [240, 253, 244],
         borderline: [255, 251, 235],
@@ -103,13 +101,10 @@ export default function ReportDetail() {
       }
 
       // ─── HEADER ───────────────────────────────────────────────
-      // White header with blue left accent bar
       pdf.setFillColor(255, 255, 255)
       pdf.rect(0, 0, pageWidth, 42, 'F')
-      // Blue accent bar left
       pdf.setFillColor(37, 99, 235)
       pdf.rect(0, 0, 5, 42, 'F')
-      // Bottom border
       pdf.setDrawColor(226, 232, 240)
       pdf.setLineWidth(0.4)
       pdf.line(0, 42, pageWidth, 42)
@@ -136,7 +131,6 @@ export default function ReportDetail() {
         32
       )
 
-      // Status pill top right
       const [hr, hg, hb] = statusColors[report.overall_status] ?? statusColors.unknown
       const hLabel = STATUS_LABELS[report.overall_status].toUpperCase()
       const hWidth = pdf.getTextWidth(hLabel) + 12
@@ -154,8 +148,6 @@ export default function ReportDetail() {
       pdf.setDrawColor(226, 232, 240)
       pdf.setLineWidth(0.3)
       pdf.roundedRect(margin, y, contentWidth, 22, 3, 3, 'FD')
-
-      // Blue left accent on card
       pdf.setFillColor(37, 99, 235)
       pdf.roundedRect(margin, y, 3, 22, 1, 1, 'F')
 
@@ -198,12 +190,7 @@ export default function ReportDetail() {
         checkPage(14)
         pdf.setFillColor(r, g, b)
         pdf.rect(margin, y, 4, 10, 'F')
-        pdf.setFillColor(r, g, b, 0.08)
-        pdf.setFillColor(
-          Math.min(r + 200, 255),
-          Math.min(g + 200, 255),
-          Math.min(b + 200, 255)
-        )
+        pdf.setFillColor(Math.min(r + 200, 255), Math.min(g + 200, 255), Math.min(b + 200, 255))
         pdf.rect(margin + 4, y, contentWidth - 4, 10, 'F')
         pdf.setTextColor(r, g, b)
         pdf.setFontSize(10)
@@ -237,7 +224,7 @@ export default function ReportDetail() {
       if (report.parameters?.length > 0) {
         sectionHeader('HEALTH PARAMETERS', 37, 99, 235)
 
-        // Table header row
+        // cols: Parameter(name+desc), Value, Normal Range, Status
         const cols = [65, 35, 48, 22]
         const headers = ['Parameter', 'Value', 'Normal Range', 'Status']
         checkPage(10)
@@ -254,38 +241,61 @@ export default function ReportDetail() {
         y += 9
 
         report.parameters.forEach((param, i) => {
-          checkPage(9)
+          // Calculate row height: taller if description exists
+          const hasDesc = !!(param as any).description
+          const descText = hasDesc
+            ? pdf.splitTextToSize((param as any).description, cols[0] - 4)
+            : []
+          const rowHeight = hasDesc ? 9 + descText.length * 4.5 + 2 : 9
+
+          checkPage(rowHeight)
+
           const rowStatus = param.status in statusRowBg ? param.status : 'unknown'
           const [rbr, rbg, rbb] = statusRowBg[rowStatus]
 
-          // Alternate: white vs status-tinted
           if (param.status === 'abnormal' || param.status === 'borderline') {
             pdf.setFillColor(rbr, rbg, rbb)
           } else {
-            pdf.setFillColor(i % 2 === 0 ? 255 : 248, i % 2 === 0 ? 255 : 250, i % 2 === 0 ? 255 : 252)
+            pdf.setFillColor(
+              i % 2 === 0 ? 255 : 248,
+              i % 2 === 0 ? 255 : 250,
+              i % 2 === 0 ? 255 : 252
+            )
           }
-          pdf.rect(margin, y, contentWidth, 9, 'F')
+          pdf.rect(margin, y, contentWidth, rowHeight, 'F')
 
-          // Draw bottom separator
           pdf.setDrawColor(226, 232, 240)
           pdf.setLineWidth(0.2)
-          pdf.line(margin, y + 9, margin + contentWidth, y + 9)
+          pdf.line(margin, y + rowHeight, margin + contentWidth, y + rowHeight)
 
           const [pr, pg, pb] = statusColors[param.status] ?? statusColors.unknown
           xp = margin + 3
 
+          // Parameter name
           pdf.setTextColor(15, 23, 42)
           pdf.setFont('helvetica', 'bold')
           pdf.setFontSize(8.5)
           pdf.text(param.name, xp, y + 6)
+
+          // Description below name
+          if (hasDesc && descText.length > 0) {
+            pdf.setTextColor(100, 116, 139)
+            pdf.setFont('helvetica', 'normal')
+            pdf.setFontSize(7)
+            descText.forEach((dl: string, di: number) => {
+              pdf.text(dl, xp, y + 6 + (di + 1) * 4.5)
+            })
+          }
           xp += cols[0]
 
+          // Value
           pdf.setTextColor(30, 41, 59)
           pdf.setFont('helvetica', 'normal')
           pdf.setFontSize(8.5)
           pdf.text(`${param.value} ${param.unit}`, xp, y + 6)
           xp += cols[1]
 
+          // Normal range
           pdf.setTextColor(71, 85, 105)
           pdf.setFontSize(8)
           pdf.text(param.normal_range, xp, y + 6)
@@ -301,7 +311,7 @@ export default function ReportDetail() {
           pdf.setFontSize(7)
           pdf.text(sLabel, xp + 3, y + 6)
 
-          y += 9
+          y += rowHeight
         })
         y += 8
       }
@@ -312,16 +322,14 @@ export default function ReportDetail() {
 
         report.advice.forEach((tip, i) => {
           const tipLines = pdf.splitTextToSize(tip, contentWidth - 16)
-          const tipHeight = tipLines.length * 5.5 + 8
+          const tipHeight = tipLines.length * 5.5 + 10
           checkPage(tipHeight + 4)
 
-          // Card bg
           pdf.setFillColor(255, 251, 235)
           pdf.setDrawColor(253, 230, 138)
           pdf.setLineWidth(0.3)
           pdf.roundedRect(margin, y, contentWidth, tipHeight, 2, 2, 'FD')
 
-          // Number circle
           pdf.setFillColor(180, 83, 9)
           pdf.circle(margin + 6, y + tipHeight / 2, 4, 'F')
           pdf.setTextColor(255, 255, 255)
@@ -341,21 +349,61 @@ export default function ReportDetail() {
         y += 4
       }
 
-      // ─── DISCLAIMER ───────────────────────────────────────────
-      checkPage(18)
-      pdf.setFillColor(241, 245, 249)
-      pdf.setDrawColor(203, 213, 225)
-      pdf.setLineWidth(0.3)
-      pdf.roundedRect(margin, y, contentWidth, 16, 3, 3, 'FD')
-      pdf.setTextColor(100, 116, 139)
-      pdf.setFontSize(7.5)
+     // ─── GLOSSARY SECTION ─────────────────────────────────────
+const paramsWithDesc = (report.parameters ?? []).filter((p) => !!(p as any).description)
+if (paramsWithDesc.length > 0) {
+  // NO pdf.addPage() here — just flow naturally
+  y += 4
+  sectionHeader('MEDICAL TERMS GLOSSARY', 109, 40, 217)
+
+  paramsWithDesc.forEach((param, i) => {
+    const desc = (param as any).description as string
+    const descLines = pdf.splitTextToSize(desc, contentWidth - 10)
+    const cardH = descLines.length * 5 + 12
+    checkPage(cardH + 4)
+
+    pdf.setFillColor(i % 2 === 0 ? 250 : 245, 245, 255)
+    pdf.setDrawColor(196, 181, 253)
+    pdf.setLineWidth(0.25)
+    pdf.roundedRect(margin, y, contentWidth, cardH, 2, 2, 'FD')
+
+    pdf.setFillColor(109, 40, 217)
+    pdf.rect(margin, y, 3, cardH, 'F')
+
+    pdf.setTextColor(109, 40, 217)
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(9)
+    pdf.text(param.name, margin + 7, y + 7)
+
+    descLines.forEach((dl: string, di: number) => {
+      pdf.setTextColor(51, 65, 85)
       pdf.setFont('helvetica', 'normal')
-      const disc =
-        '⚠ MediSense is for informational purposes only. This AI-generated analysis is not a substitute for professional medical advice. Always consult a qualified healthcare professional.'
-      const discLines = pdf.splitTextToSize(disc, contentWidth - 8)
-      discLines.forEach((line: string, i: number) => {
-        pdf.text(line, margin + 4, y + 6 + i * 4.5)
-      })
+      pdf.setFontSize(8.5)
+      pdf.text(dl, margin + 7, y + 7 + (di + 1) * 5)
+    })
+
+    y += cardH + 3
+  })
+  y += 6
+}
+
+// ─── DISCLAIMER ───────────────────────────────────────────
+checkPage(22)
+pdf.setFillColor(241, 245, 249)
+pdf.setDrawColor(203, 213, 225)
+pdf.setLineWidth(0.3)
+pdf.roundedRect(margin, y, contentWidth, 16, 3, 3, 'FD')
+pdf.setTextColor(100, 116, 139)
+pdf.setFontSize(7.5)
+pdf.setFont('helvetica', 'normal')
+// ✅ NO emoji — plain text only, jsPDF can't render ⚠
+const disc =
+  'DISCLAIMER: MediSense is for informational purposes only. This AI-generated analysis is not a substitute for professional medical advice. Always consult a qualified healthcare professional.'
+const discLines = pdf.splitTextToSize(disc, contentWidth - 8)
+discLines.forEach((line: string, i: number) => {
+  pdf.text(line, margin + 4, y + 6 + i * 4.5)
+})
+y += 20
 
       // ─── FOOTER ALL PAGES ─────────────────────────────────────
       const totalPages = (pdf as any).internal.getNumberOfPages()
@@ -382,7 +430,6 @@ export default function ReportDetail() {
     }
   }
 
-  // ─── JSX (unchanged) ──────────────────────────────────────────
   return (
     <div className="flex h-screen bg-[#0A0F1E] dark:bg-[#0A0F1E] light:bg-[#F8FAFC] overflow-hidden">
       <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
@@ -438,22 +485,17 @@ export default function ReportDetail() {
             </div>
           ) : !report ? null : (
             <div className="space-y-5">
-              <motion.div
-                custom={0}
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                className="bg-gray-900 dark:bg-gray-900 light:bg-white border border-gray-800 dark:border-gray-800 light:border-gray-100 rounded-2xl p-5 shadow-xl"
-              >
+
+              {/* File Info Card */}
+              <motion.div custom={0} variants={cardVariants} initial="hidden" animate="visible"
+                className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
                 <div className="flex items-start justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
                       <FileText size={20} className="text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-white dark:text-white light:text-gray-900 font-semibold">
-                        {report.file_name}
-                      </p>
+                      <p className="text-white font-semibold">{report.file_name}</p>
                       <div className="flex items-center gap-1.5 text-gray-500 text-xs mt-0.5">
                         <Clock size={11} />
                         {formatDateTime(report.created_at)}
@@ -471,13 +513,9 @@ export default function ReportDetail() {
                 </div>
               </motion.div>
 
-              <motion.div
-                custom={1}
-                variants={cardVariants}
-                initial="hidden"
-                animate="visible"
-                className={`flex items-center gap-3 p-4 rounded-2xl border ${overallBannerStyles[report.overall_status]}`}
-              >
+              {/* Overall Status Banner */}
+              <motion.div custom={1} variants={cardVariants} initial="hidden" animate="visible"
+                className={`flex items-center gap-3 p-4 rounded-2xl border ${overallBannerStyles[report.overall_status]}`}>
                 <Activity size={20} />
                 <div>
                   <p className="font-semibold text-sm">Overall Health Status: {STATUS_LABELS[report.overall_status]}</p>
@@ -485,33 +523,37 @@ export default function ReportDetail() {
                 </div>
               </motion.div>
 
+              {/* AI Summary */}
               {report.simplified_text && (
                 <motion.div custom={2} variants={cardVariants} initial="hidden" animate="visible"
-                  className="bg-gray-900 dark:bg-gray-900 light:bg-white border border-gray-800 dark:border-gray-800 light:border-gray-100 rounded-2xl p-5 shadow-xl">
+                  className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="p-2 rounded-xl bg-cyan-500/10">
                       <RefreshCw size={16} className="text-cyan-400" />
                     </div>
-                    <h2 className="text-white dark:text-white light:text-gray-900 font-semibold">AI Summary</h2>
+                    <h2 className="text-white font-semibold">AI Summary</h2>
                   </div>
-                  <p className="text-gray-300 dark:text-gray-300 light:text-gray-600 text-sm leading-relaxed">{report.simplified_text}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{report.simplified_text}</p>
                 </motion.div>
               )}
 
+              {/* Parameters Table */}
               {report.parameters && report.parameters.length > 0 && (
                 <motion.div custom={3} variants={cardVariants} initial="hidden" animate="visible"
-                  className="bg-gray-900 dark:bg-gray-900 light:bg-white border border-gray-800 dark:border-gray-800 light:border-gray-100 rounded-2xl shadow-xl overflow-hidden">
-                  <div className="flex items-center gap-2 p-5 border-b border-gray-800 dark:border-gray-800 light:border-gray-100">
+                  className="bg-gray-900 border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                  <div className="flex items-center gap-2 p-5 border-b border-gray-800">
                     <div className="p-2 rounded-xl bg-blue-500/10">
                       <Activity size={16} className="text-blue-400" />
                     </div>
-                    <h2 className="text-white dark:text-white light:text-gray-900 font-semibold">Health Parameters</h2>
+                    <h2 className="text-white font-semibold">Health Parameters</h2>
                     <span className="ml-auto text-xs text-gray-500">{report.parameters.length} parameters</span>
                   </div>
+
+                  {/* Desktop table */}
                   <div className="hidden sm:block overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-gray-800 dark:border-gray-800 light:border-gray-100">
+                        <tr className="border-b border-gray-800">
                           {['Parameter', 'Value', 'Normal Range', 'Status'].map((h) => (
                             <th key={h} className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide px-5 py-3">{h}</th>
                           ))}
@@ -520,9 +562,17 @@ export default function ReportDetail() {
                       <tbody>
                         {report.parameters.map((param, i) => (
                           <motion.tr key={i} custom={i} variants={cardVariants} initial="hidden" animate="visible"
-                            className="border-b border-gray-800/50 dark:border-gray-800/50 light:border-gray-50 last:border-0 hover:bg-gray-800/30 transition-colors">
-                            <td className="px-5 py-3.5 text-white dark:text-white light:text-gray-900 text-sm font-medium">{param.name}</td>
-                            <td className="px-5 py-3.5 text-gray-300 dark:text-gray-300 light:text-gray-700 text-sm font-mono">{param.value} {param.unit}</td>
+                            className="border-b border-gray-800/50 last:border-0 hover:bg-gray-800/30 transition-colors">
+                            {/* Parameter name + description */}
+                            <td className="px-5 py-3.5">
+                              <p className="text-white text-sm font-medium">{param.name}</p>
+                              {(param as any).description && (
+                                <p className="text-gray-500 text-xs mt-0.5 leading-relaxed max-w-xs">
+                                  {(param as any).description}
+                                </p>
+                              )}
+                            </td>
+                            <td className="px-5 py-3.5 text-gray-300 text-sm font-mono">{param.value} {param.unit}</td>
                             <td className="px-5 py-3.5 text-gray-500 text-sm">{param.normal_range}</td>
                             <td className="px-5 py-3.5">
                               <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium border ${STATUS_STYLES[param.status]}`}>
@@ -535,6 +585,8 @@ export default function ReportDetail() {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Mobile cards */}
                   <div className="sm:hidden divide-y divide-gray-800">
                     {report.parameters.map((param, i) => (
                       <div key={i} className="p-4 space-y-2">
@@ -545,6 +597,9 @@ export default function ReportDetail() {
                             {STATUS_LABELS[param.status]}
                           </span>
                         </div>
+                        {(param as any).description && (
+                          <p className="text-gray-500 text-xs leading-relaxed">{(param as any).description}</p>
+                        )}
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-gray-300 font-mono">{param.value} {param.unit}</span>
                           <span className="text-gray-500 text-xs">Range: {param.normal_range}</span>
@@ -555,14 +610,15 @@ export default function ReportDetail() {
                 </motion.div>
               )}
 
+              {/* Health Advice */}
               {report.advice && report.advice.length > 0 && (
                 <motion.div custom={4} variants={cardVariants} initial="hidden" animate="visible"
-                  className="bg-gray-900 dark:bg-gray-900 light:bg-white border border-gray-800 dark:border-gray-800 light:border-gray-100 rounded-2xl p-5 shadow-xl">
+                  className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="p-2 rounded-xl bg-amber-500/10">
                       <Lightbulb size={16} className="text-amber-400" />
                     </div>
-                    <h2 className="text-white dark:text-white light:text-gray-900 font-semibold">Health Advice</h2>
+                    <h2 className="text-white font-semibold">Health Advice</h2>
                   </div>
                   <ul className="space-y-3">
                     {report.advice.map((tip, i) => (
@@ -571,15 +627,48 @@ export default function ReportDetail() {
                         <span className="shrink-0 w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xs font-bold mt-0.5">
                           {i + 1}
                         </span>
-                        <p className="text-gray-300 dark:text-gray-300 light:text-gray-600 text-sm leading-relaxed">{tip}</p>
+                        <p className="text-gray-300 text-sm leading-relaxed">{tip}</p>
                       </motion.li>
                     ))}
                   </ul>
                 </motion.div>
               )}
 
+              {/* Medical Terms Glossary */}
+              {report.parameters?.some((p) => !!(p as any).description) && (
+                <motion.div custom={5} variants={cardVariants} initial="hidden" animate="visible"
+                  className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-xl">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 rounded-xl bg-violet-500/10">
+                      <FileText size={16} className="text-violet-400" />
+                    </div>
+                    <h2 className="text-white font-semibold">Medical Terms Glossary</h2>
+                  </div>
+                  <div className="space-y-3">
+                    {report.parameters
+                      .filter((p) => !!(p as any).description)
+                      .map((param, i) => (
+                        <div key={i} className="flex gap-3 p-3 rounded-xl bg-violet-500/5 border border-violet-500/10">
+                          <div className="shrink-0 mt-0.5">
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-400 text-xs font-bold">
+                              {param.name.split(' ').map(w => w[0]).join('').slice(0, 4)}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-white text-sm font-semibold">{param.name}</p>
+                            <p className="text-gray-400 text-xs leading-relaxed mt-0.5">
+                              {(param as any).description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Raw Text */}
               {report.extracted_text && (
-                <motion.details custom={5} variants={cardVariants} initial="hidden" animate="visible"
+                <motion.details custom={6} variants={cardVariants} initial="hidden" animate="visible"
                   className="bg-gray-900 border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
                   <summary className="flex items-center gap-2 px-5 py-4 cursor-pointer text-gray-400 hover:text-white transition-colors text-sm font-medium select-none">
                     <FileText size={16} />
@@ -593,12 +682,14 @@ export default function ReportDetail() {
                 </motion.details>
               )}
 
-              <motion.div custom={6} variants={cardVariants} initial="hidden" animate="visible"
+              {/* Disclaimer */}
+              <motion.div custom={7} variants={cardVariants} initial="hidden" animate="visible"
                 className="p-4 rounded-2xl bg-gray-800/50 border border-gray-700">
                 <p className="text-gray-500 text-xs text-center leading-relaxed">
                   ⚠️ MediSense is for informational purposes only. This analysis is AI-generated and not a substitute for professional medical advice. Always consult a qualified healthcare professional.
                 </p>
               </motion.div>
+
             </div>
           )}
         </div>

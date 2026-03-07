@@ -35,14 +35,16 @@ JSON structure:
   "simplified_text": "2-3 sentence plain English summary using ONLY actual values from the report",
   "overall_status": "normal" | "borderline" | "abnormal" | "unknown",
   "parameters": [
-    {
-      "name": "exact parameter name",
-      "value": "exact numeric value as string",
-      "unit": "exact unit",
-      "normal_range": "exact reference range",
-      "status": "normal" | "borderline" | "abnormal" | "unknown"
-    }
-  ],
+  {
+    "name": "exact parameter name",
+    "value": "exact numeric value as string",
+    "unit": "exact unit",
+    "normal_range": "exact reference range",
+    "status": "normal" | "borderline" | "abnormal" | "unknown",
+    "description": "1 sentence plain English explanation of what this test measures"
+  }
+]
+
   "advice": [
   "For each ABNORMAL finding, give a specific actionable step",
   "Include specific iron-rich or relevant foods by name",

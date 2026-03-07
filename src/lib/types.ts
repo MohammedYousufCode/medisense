@@ -19,7 +19,9 @@ export interface HealthParameter {
   unit: string
   normal_range: string
   status: OverallStatus
+  description?: string   // ← add this line
 }
+
 
 export interface Report {
   id: string
