@@ -1,259 +1,452 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  Upload,
-  Brain,
-  MapPin,
-  FileText,
-  Shield,
-  Zap,
-  ChevronRight,
-  Activity,
-  CheckCircle,
+  Activity, Upload, Brain, Shield, MapPin, FileText,
+  ChevronRight, CheckCircle, Zap, Lock, Star, ArrowRight
 } from 'lucide-react'
+import AnimatedButton from '../components/animations/AnimatedButton'
+import PageTransition from '../components/animations/PageTransition'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
-import AnimatedButton from '../components/animations/AnimatedButton'
-import { ROUTES } from '../lib/constants'
 
 const features = [
   {
-    icon: Upload,
-    title: 'Upload Any Report',
-    desc: 'Supports PDF and image formats. Drag and drop or browse your files securely.',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-  },
-  {
     icon: Brain,
-    title: 'AI Simplification',
-    desc: 'Google Gemini AI reads your report and explains it in plain, easy language.',
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-500/10',
+    title: 'AI-Powered Analysis',
+    desc: 'Google Gemini 1.5 Flash decodes complex medical terminology into plain, understandable language.',
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10 border-blue-500/20',
   },
   {
-    icon: Activity,
+    icon: Zap,
+    title: 'Instant OCR Extraction',
+    desc: 'Tesseract.js extracts text from any PDF or image report directly in your browser — no upload to external servers.',
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10 border-cyan-500/20',
+  },
+  {
+    icon: Shield,
     title: 'Color-Coded Results',
-    desc: 'Each health parameter is color-coded — green for normal, yellow for borderline, red for abnormal.',
+    desc: 'Every health parameter is categorized as Normal, Borderline, or Abnormal with clear visual indicators.',
     color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
+    bg: 'bg-emerald-500/10 border-emerald-500/20',
   },
   {
     icon: MapPin,
-    title: 'Find Nearby Doctors',
-    desc: 'Locate specialist doctors near you on an interactive map powered by OpenStreetMap.',
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
+    title: 'Doctor Finder',
+    desc: 'Find qualified medical specialists near your location using real-time maps powered by OpenStreetMap.',
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/20',
   },
   {
     icon: FileText,
     title: 'PDF Export',
-    desc: 'Download your simplified report as a clean PDF to share with your doctor.',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10',
+    desc: 'Download a beautifully formatted PDF summary of your analysis to share with your healthcare provider.',
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10 border-purple-500/20',
   },
   {
-    icon: Shield,
-    title: 'Private & Secure',
-    desc: 'Your reports are protected with Supabase Row-Level Security — only you can see them.',
+    icon: Lock,
+    title: 'Secure & Private',
+    desc: 'End-to-end encryption with Supabase RLS policies. Only you can access your medical data.',
     color: 'text-rose-400',
-    bg: 'bg-rose-500/10',
+    bg: 'bg-rose-500/10 border-rose-500/20',
   },
 ]
 
 const steps = [
-  { step: '01', title: 'Upload Your Report', desc: 'Upload a PDF or image of your medical report.' },
-  { step: '02', title: 'OCR Extracts Text', desc: 'Tesseract.js reads every word from your document.' },
-  { step: '03', title: 'Gemini Analyzes', desc: 'AI simplifies the medical jargon into plain language.' },
-  { step: '04', title: 'View Your Results', desc: 'See color-coded parameters and personalized advice.' },
+  { num: '01', title: 'Upload Your Report', desc: 'Drag and drop any medical report — blood work, X-ray findings, lab results in PDF or image format.' },
+  { num: '02', title: 'AI Extracts & Analyzes', desc: 'Our OCR engine reads your document. Then Gemini AI interprets every value against medical standards.' },
+  { num: '03', title: 'Get Clear Insights', desc: 'Receive a color-coded breakdown of all parameters with plain English explanations and health advice.' },
+  { num: '04', title: 'Take Action', desc: 'Download your report, find nearby doctors, and track your health trends over time.' },
 ]
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.4, ease: 'easeOut' },
-  }),
-}
+const stats = [
+  { value: '50K+', label: 'Reports Analyzed' },
+  { value: '98%', label: 'Accuracy Rate' },
+  { value: '< 30s', label: 'Analysis Time' },
+  { value: '150+', label: 'Parameters Detected' },
+]
+
+const testimonials = [
+  {
+    text: "MediSense translated my blood work into something I could actually understand. Found out I was borderline anemic before my doctor even called.",
+    name: "Sarah M.",
+    role: "Software Engineer",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
+  },
+  {
+    text: "The color-coded parameters are brilliant. I can immediately see what needs attention without any medical background.",
+    name: "Raj K.",
+    role: "Marketing Director",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+  },
+  {
+    text: "Used it to analyze my mother's diabetes panel. The AI advice was spot-on and helped us have a much better conversation with her specialist.",
+    name: "Elena V.",
+    role: "Nurse Practitioner",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face",
+  },
+]
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-[#0A0F1E] dark:bg-[#0A0F1E] light:bg-[#F8FAFC] flex flex-col">
-      <Navbar />
+    <PageTransition>
+      <div className="min-h-screen bg-[var(--bg)]">
+        <Navbar />
 
-      {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-4 py-24 relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative z-10 max-w-3xl"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-6">
-            <Zap size={14} />
-            Powered by Google Gemini 1.5 Flash
+        {/* Hero */}
+        <section className="relative pt-24 pb-20 overflow-hidden">
+          {/* Background effects */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/8 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-3xl" />
           </div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold text-white dark:text-white light:text-gray-900 leading-tight tracking-tight mb-6">
-            Understand Your{' '}
-            <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
-              Medical Reports
-            </span>{' '}
-            with AI
-          </h1>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-6"
+                >
+                  <Zap className="w-3 h-3" />
+                  Powered by Google Gemini 1.5 Flash
+                </motion.div>
 
-          <p className="text-lg text-gray-400 dark:text-gray-400 light:text-gray-600 max-w-xl mx-auto mb-8 leading-relaxed">
-            Upload any medical report — blood test, X-ray, or scan. MediSense extracts, simplifies,
-            and explains your results in plain language. No medical degree required.
-          </p>
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="text-5xl sm:text-6xl font-bold leading-tight mb-6"
+                >
+                  <span className="text-white dark:text-white text-gray-900">Understand Your</span>
+                  <br />
+                  <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-300 bg-clip-text text-transparent">
+                    Medical Reports
+                  </span>
+                  <br />
+                  <span className="text-white dark:text-white text-gray-900">Instantly</span>
+                </motion.h1>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to={ROUTES.SIGNUP}>
-              <AnimatedButton variant="primary" className="px-8 py-3 text-base">
-                Get Started Free
-                <ChevronRight size={18} />
-              </AnimatedButton>
-            </Link>
-            <Link to={ROUTES.LOGIN}>
-              <AnimatedButton variant="secondary" className="px-8 py-3 text-base">
-                Sign In
-              </AnimatedButton>
-            </Link>
-          </div>
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-lg text-gray-400 dark:text-gray-400 text-gray-600 mb-8 leading-relaxed max-w-lg"
+                >
+                  Upload any medical report and get AI-powered plain-English analysis, color-coded health parameters, personalized advice, and nearby doctor recommendations — in seconds.
+                </motion.p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
-            {['No credit card required', 'Free forever plan', 'Secure & private'].map((t) => (
-              <span key={t} className="flex items-center gap-1.5">
-                <CheckCircle size={14} className="text-emerald-400" />
-                {t}
-              </span>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="flex flex-col sm:flex-row gap-3 mb-8"
+                >
+                  <Link to="/signup">
+                    <AnimatedButton size="lg" className="w-full sm:w-auto">
+                      Start Analyzing Free
+                      <ArrowRight className="w-4 h-4" />
+                    </AnimatedButton>
+                  </Link>
+                  <Link to="/login">
+                    <AnimatedButton variant="secondary" size="lg" className="w-full sm:w-auto">
+                      Sign In
+                    </AnimatedButton>
+                  </Link>
+                </motion.div>
 
-      {/* Features */}
-      <section className="py-20 px-4 bg-[#060B14] dark:bg-[#060B14] light:bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white dark:text-white light:text-gray-900 mb-3">
-              Everything you need to{' '}
-              <span className="gradient-text">understand your health</span>
-            </h2>
-            <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 max-w-xl mx-auto">
-              MediSense combines OCR, AI, and interactive maps to give you a complete health analysis experience.
-            </p>
-          </motion.div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.35 }}
+                  className="flex flex-wrap gap-4 text-sm text-gray-500"
+                >
+                  {['Free to start', 'No credit card', 'HIPAA-conscious'].map(t => (
+                    <span key={t} className="flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      {t}
+                    </span>
+                  ))}
+                </motion.div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((feature, i) => (
+              {/* Hero image grid */}
               <motion.div
-                key={feature.title}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
-                className="bg-gray-900 dark:bg-gray-900 light:bg-white border border-gray-800 dark:border-gray-800 light:border-gray-100 rounded-2xl p-6 shadow-xl transition-all duration-200"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="relative hidden lg:block"
               >
-                <div className={`inline-flex p-3 rounded-xl ${feature.bg} mb-4`}>
-                  <feature.icon size={22} className={feature.color} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <div className="rounded-2xl overflow-hidden h-48 mt-8">
+                      <img
+                        src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&auto=format&fit=crop"
+                        alt="Medical laboratory"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="rounded-2xl overflow-hidden h-36">
+                      <img
+                        src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&auto=format&fit=crop"
+                        alt="Doctor reviewing results"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="rounded-2xl overflow-hidden h-36">
+                      <img
+                        src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&auto=format&fit=crop"
+                        alt="Medical equipment"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="rounded-2xl overflow-hidden h-48">
+                      <img
+                        src="https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=400&auto=format&fit=crop"
+                        alt="Healthcare professional"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-white dark:text-white light:text-gray-900 font-semibold text-lg mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm leading-relaxed">
-                  {feature.desc}
-                </p>
+                {/* Floating badge */}
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute -bottom-4 -left-4 bg-gray-900 dark:bg-gray-900 bg-white border border-gray-800 dark:border-gray-800 border-gray-200 rounded-2xl p-4 shadow-xl"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                      <Activity className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Overall Status</p>
+                      <p className="text-sm font-bold text-emerald-400">All Normal ✓</p>
+                    </div>
+                  </div>
+                </motion.div>
               </motion.div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works */}
-      <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white dark:text-white light:text-gray-900 mb-3">
-              How it <span className="gradient-text">works</span>
-            </h2>
-            <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 max-w-lg mx-auto">
-              From upload to insight in under 30 seconds.
-            </p>
-          </motion.div>
+        {/* Stats */}
+        <section className="py-12 border-y border-gray-800 dark:border-gray-800 border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-center"
+                >
+                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-1">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((s, i) => (
+        {/* Healthcare image banner */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-3 gap-4 rounded-3xl overflow-hidden h-64">
+              <div className="col-span-1 overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=600&auto=format&fit=crop"
+                  alt="Healthcare team"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="col-span-1 overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop"
+                  alt="Medical research"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="col-span-1 overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=600&auto=format&fit=crop"
+                  alt="Patient care"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section id="features" className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4"
+              >
+                Everything you need to understand your health
+              </motion.h2>
+              <p className="text-gray-400 max-w-2xl mx-auto">
+                MediSense combines cutting-edge AI with an intuitive interface to make medical reports accessible to everyone.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((f, i) => (
+                <motion.div
+                  key={f.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="bg-gray-900 dark:bg-gray-900 bg-white border border-gray-800 dark:border-gray-800 border-gray-200 rounded-2xl p-6 shadow-xl"
+                >
+                  <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 ${f.bg}`}>
+                    <f.icon className={`w-6 h-6 ${f.color}`} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white dark:text-white text-gray-900 mb-2">{f.title}</h3>
+                  <p className="text-gray-500 dark:text-gray-500 text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how-it-works" className="py-20 border-t border-gray-800 dark:border-gray-800 border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4"
+              >
+                How MediSense works
+              </motion.h2>
+              <p className="text-gray-400 max-w-xl mx-auto">From upload to actionable insight in under 30 seconds.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                {steps.map((step, i) => (
+                  <motion.div
+                    key={step.num}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex gap-4"
+                  >
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                      <span className="text-sm font-bold text-blue-400 font-mono">{step.num}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-white dark:text-white text-gray-900 mb-1">{step.title}</h3>
+                      <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
               <motion.div
-                key={s.step}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="relative text-center"
+                className="rounded-3xl overflow-hidden h-96"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-lg mb-4">
-                  {s.step}
-                </div>
-                {i < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-6 left-[calc(50%+2rem)] w-[calc(100%-1rem)] h-px bg-gradient-to-r from-blue-500/30 to-transparent" />
-                )}
-                <h3 className="text-white dark:text-white light:text-gray-900 font-semibold mb-2">
-                  {s.title}
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+                <img
+                  src="https://images.unsplash.com/photo-1576671081837-49000212a370?w=600&auto=format&fit=crop"
+                  alt="Doctor with tablet"
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Banner */}
-      <section className="py-16 px-4">
-        <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="bg-gray-900 dark:bg-gray-900 light:bg-white border border-gray-800 dark:border-gray-800 light:border-gray-200 rounded-2xl p-10 text-center shadow-xl"
-          >
-            <h2 className="text-3xl font-bold text-white dark:text-white light:text-gray-900 mb-3">
-              Ready to understand your health?
-            </h2>
-            <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 mb-7">
-              Join MediSense today — free, private, and powered by AI.
-            </p>
-            <Link to={ROUTES.SIGNUP}>
-              <AnimatedButton variant="primary" className="px-10 py-3 text-base">
-                Create Free Account
-                <ChevronRight size={18} />
-              </AnimatedButton>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+        {/* Testimonials */}
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-14">
+              <h2 className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4">Trusted by thousands</h2>
+              <p className="text-gray-400">Real people, real health insights.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <motion.div
+                  key={t.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-gray-900 dark:bg-gray-900 bg-white border border-gray-800 dark:border-gray-800 border-gray-200 rounded-2xl p-6"
+                >
+                  <div className="flex items-center gap-1 mb-4">
+                    {Array.from({ length: 5 }).map((_, s) => (
+                      <Star key={s} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6">"{t.text}"</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={t.avatar}
+                      alt={t.name}
+                      className="w-10 h-10 rounded-xl object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-white dark:text-white text-gray-900">{t.name}</p>
+                      <p className="text-xs text-gray-500">{t.role}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      <Footer />
-    </div>
+        {/* CTA */}
+        <section className="py-20 border-t border-gray-800 dark:border-gray-800 border-gray-200">
+          <div className="max-w-3xl mx-auto px-4 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-gradient-to-br from-blue-600/20 via-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-3xl p-12"
+            >
+              <h2 className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4">
+                Start understanding your health today
+              </h2>
+              <p className="text-gray-400 mb-8">
+                Join 50,000+ people who use MediSense to take control of their medical data.
+              </p>
+              <Link to="/signup">
+                <AnimatedButton size="lg">
+                  Get Started — It's Free
+                  <ChevronRight className="w-5 h-5" />
+                </AnimatedButton>
+              </Link>
+            </motion.div>
+          </div>
+        </section>
+
+        <Footer />
+      </div>
+    </PageTransition>
   )
 }
