@@ -9,6 +9,7 @@ export interface EmailPayload {
   to_name: string
   report_name: string
   message: string
+  [key: string]: unknown
 }
 
 export async function sendReportNotification(payload: EmailPayload): Promise<void> {

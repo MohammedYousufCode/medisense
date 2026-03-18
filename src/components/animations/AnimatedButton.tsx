@@ -7,6 +7,7 @@ interface AnimatedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean
   variant?: 'primary' | 'secondary' | 'danger'
   fullWidth?: boolean
+  size?: 'sm' | 'md' | 'lg'
 }
 
 const variantClasses = {
@@ -15,11 +16,18 @@ const variantClasses = {
   danger: 'bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20',
 }
 
+const sizeClasses = {
+  sm: 'px-3 py-1.5 text-xs',
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-7 py-3 text-base',
+}
+
 export default function AnimatedButton({
   children,
   loading = false,
   variant = 'primary',
   fullWidth = false,
+  size = 'md',
   className = '',
   disabled,
   ...props
@@ -33,9 +41,10 @@ export default function AnimatedButton({
       disabled={loading || disabled}
       className={`
         inline-flex items-center justify-center gap-2
-        px-5 py-2.5 rounded-xl font-semibold text-sm
+        rounded-xl font-semibold
         transition-all duration-200
         disabled:opacity-60 disabled:cursor-not-allowed
+        ${sizeClasses[size]}
         ${variantClasses[variant]}
         ${fullWidth ? 'w-full' : ''}
         ${className}
