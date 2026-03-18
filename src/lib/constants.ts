@@ -38,7 +38,7 @@ export const GEMINI_MODEL = 'gemini-pro'              // try third
 export const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
 
 export const DOCTOR_SEARCH_RADIUS_KM = 5
-export const MAP_DEFAULT_ZOOM = 14
+export const MAP_DEFAULT_ZOOM = 13
 export const MAP_DEFAULT_CENTER: [number, number] = [12.2979, 76.6392] // Mysore
 
 

@@ -142,63 +142,70 @@ export default function DoctorFinder() {
   const [searchQuery, setSearchQuery] = useState('')
   const [radiusKm, setRadiusKm] = useState(5)
 
-  const getLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser.')
-      return
+  
+  
+
+  // Replace the entire getLocation and loadDoctors functions:
+
+const loadDoctors = useCallback(async (lat: number, lng: number, radius: number) => {
+  setLoadingDoctors(true)
+  setDoctorError(null)
+  try {
+    const results = await fetchNearbyDoctors(lat, lng, radius * 1000)
+    setDoctors(results)
+    if (results.length === 0) {
+      setDoctorError('No medical facilities found nearby. Try increasing the search radius.')
     }
+  } catch {
+    setDoctorError('Failed to load nearby doctors. Please check your internet connection.')
+  } finally {
+    setLoadingDoctors(false)
+  }
+}, [])
 
-    setLoadingLocation(true)
-    setLocationError(null)
-    setDoctorError(null)
+const getLocation = useCallback(() => {
+  if (!navigator.geolocation) {
+    setLocationError('Geolocation is not supported by your browser.')
+    return
+  }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude]
-        setUserLocation(coords)
-        setLoadingLocation(false)
-        loadDoctors(coords[0], coords[1])
-      },
-      (err) => {
-        setLoadingLocation(false)
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            setLocationError('Location access denied. Please allow location in your browser settings.')
-            break
-          case err.POSITION_UNAVAILABLE:
-            setLocationError('Location information unavailable. Try again.')
-            break
-          default:
-            setLocationError('Could not get your location. Please try again.')
-        }
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    )
-  }, [radiusKm])
+  setLoadingLocation(true)
+  setLocationError(null)
+  setDoctorError(null)
 
-  const loadDoctors = async (lat: number, lng: number) => {
-    setLoadingDoctors(true)
-    setDoctorError(null)
-    try {
-      const results = await fetchNearbyDoctors(lat, lng, radiusKm * 1000)
-      setDoctors(results)
-      if (results.length === 0) {
-        setDoctorError('No medical facilities found nearby. Try increasing the search radius.')
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude]
+      setUserLocation(coords)
+      setLoadingLocation(false)
+      loadDoctors(coords[0], coords[1], radiusKm)  // ✅ pass radiusKm directly
+    },
+    (err) => {
+      setLoadingLocation(false)
+      switch (err.code) {
+        case err.PERMISSION_DENIED:
+          setLocationError('Location access denied. Please allow location in your browser settings.')
+          break
+        case err.POSITION_UNAVAILABLE:
+          setLocationError('Location information unavailable. Try again.')
+          break
+        default:
+          setLocationError('Could not get your location. Please try again.')
       }
-    } catch {
-      setDoctorError('Failed to load nearby doctors. Please check your internet connection.')
-    } finally {
-      setLoadingDoctors(false)
-    }
-  }
+    },
+    { timeout: 10000, enableHighAccuracy: true }
+  )
+}, [radiusKm, loadDoctors])
 
-  const handleRefresh = () => {
-    if (userLocation) {
-      loadDoctors(userLocation[0], userLocation[1])
-    } else {
-      getLocation()
-    }
+const handleRefresh = () => {
+  if (userLocation) {
+    loadDoctors(userLocation[0], userLocation[1], radiusKm)
+  } else {
+    getLocation()
   }
+}
+
+
 
   const filteredDoctors = doctors.filter(
     (d) =>
