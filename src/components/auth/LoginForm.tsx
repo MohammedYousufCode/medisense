@@ -2,15 +2,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, Lock, Chrome } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
 import { loginSchema, type LoginFormData } from '../../lib/validators'
-import { signInWithEmail, signInWithGoogle } from '../../services/authService'
+import { signInWithEmail } from '../../services/authService'
 import { ROUTES } from '../../lib/constants'
 import AnimatedButton from '../animations/AnimatedButton'
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false)
-  const [googleLoading, setGoogleLoading] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
@@ -31,17 +30,6 @@ export default function LoginForm() {
       setServerError(err.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleGoogle = async () => {
-    setServerError(null)
-    setGoogleLoading(true)
-    try {
-      await signInWithGoogle()
-    } catch (err: any) {
-      setServerError(err.message || 'Google sign-in failed.')
-      setGoogleLoading(false)
     }
   }
 
@@ -106,23 +94,6 @@ export default function LoginForm() {
             Sign In
           </AnimatedButton>
         </form>
-
-        <div className="my-5 flex items-center gap-3">
-          <div className="flex-1 h-px bg-gray-800 dark:bg-gray-800 light:bg-gray-200" />
-          <span className="text-gray-500 text-xs">OR</span>
-          <div className="flex-1 h-px bg-gray-800 dark:bg-gray-800 light:bg-gray-200" />
-        </div>
-
-        <AnimatedButton
-          type="button"
-          variant="secondary"
-          fullWidth
-          loading={googleLoading}
-          onClick={handleGoogle}
-        >
-          <Chrome size={16} />
-          Continue with Google
-        </AnimatedButton>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Don't have an account?{' '}
