@@ -2,15 +2,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, Lock, User, Chrome, CheckCircle } from 'lucide-react'
+import { Mail, Lock, User, CheckCircle } from 'lucide-react'
 import { signupSchema, type SignupFormData } from '../../lib/validators'
-import { signUpWithEmail, signInWithGoogle } from '../../services/authService'
+import { signUpWithEmail } from '../../services/authService'
 import { ROUTES } from '../../lib/constants'
 import AnimatedButton from '../animations/AnimatedButton'
 
 export default function SignUpForm() {
   const [loading, setLoading] = useState(false)
-  const [googleLoading, setGoogleLoading] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
@@ -32,17 +31,6 @@ export default function SignUpForm() {
       setServerError(err.message || 'Sign up failed. Please try again.')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleGoogle = async () => {
-    setServerError(null)
-    setGoogleLoading(true)
-    try {
-      await signInWithGoogle()
-    } catch (err: any) {
-      setServerError(err.message || 'Google sign-in failed.')
-      setGoogleLoading(false)
     }
   }
 
@@ -167,23 +155,6 @@ export default function SignUpForm() {
             Create Account
           </AnimatedButton>
         </form>
-
-        <div className="my-5 flex items-center gap-3">
-          <div className="flex-1 h-px bg-gray-800 dark:bg-gray-800 light:bg-gray-200" />
-          <span className="text-gray-500 text-xs">OR</span>
-          <div className="flex-1 h-px bg-gray-800 dark:bg-gray-800 light:bg-gray-200" />
-        </div>
-
-        <AnimatedButton
-          type="button"
-          variant="secondary"
-          fullWidth
-          loading={googleLoading}
-          onClick={handleGoogle}
-        >
-          <Chrome size={16} />
-          Continue with Google
-        </AnimatedButton>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{' '}
