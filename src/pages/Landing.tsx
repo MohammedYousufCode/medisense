@@ -123,20 +123,20 @@ export default function Landing() {
                   transition={{ delay: 0.15 }}
                   className="text-5xl sm:text-6xl font-bold leading-tight mb-6"
                 >
-                  <span className="text-white dark:text-white text-gray-900">Understand Your</span>
+                  <span className="text-gray-900 dark:text-white">Understand Your</span>
                   <br />
                   <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-300 bg-clip-text text-transparent">
                     Medical Reports
                   </span>
                   <br />
-                  <span className="text-white dark:text-white text-gray-900">Instantly</span>
+                  <span className="text-gray-900 dark:text-white">Instantly</span>
                 </motion.h1>
 
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-lg text-gray-400 dark:text-gray-400 text-gray-600 mb-8 leading-relaxed max-w-lg"
+                  className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed max-w-lg"
                 >
                   Upload any medical report and get AI-powered plain-English analysis, color-coded health parameters, personalized advice, and nearby doctor recommendations — in seconds.
                 </motion.p>
@@ -220,7 +220,7 @@ export default function Landing() {
                 <motion.div
                   animate={{ y: [0, -8, 0] }}
                   transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute -bottom-4 -left-4 bg-gray-900 dark:bg-gray-900 bg-white border border-gray-800 dark:border-gray-800 border-gray-200 rounded-2xl p-4 shadow-xl"
+                  className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-xl"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
@@ -297,7 +297,7 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4"
+                className="text-4xl font-bold text-gray-900 dark:text-white mb-4"
               >
                 Everything you need to understand your health
               </motion.h2>
@@ -314,13 +314,13 @@ export default function Landing() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className="bg-gray-900 dark:bg-gray-900 bg-white border border-gray-800 dark:border-gray-800 border-gray-200 rounded-2xl p-6 shadow-xl"
+                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-xl"
                 >
                   <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 ${f.bg}`}>
                     <f.icon className={`w-6 h-6 ${f.color}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-white dark:text-white text-gray-900 mb-2">{f.title}</h3>
-                  <p className="text-gray-500 dark:text-gray-500 text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{f.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{f.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -335,7 +335,7 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4"
+                className="text-4xl font-bold text-gray-900 dark:text-white mb-4"
               >
                 How MediSense works
               </motion.h2>
@@ -357,8 +357,8 @@ export default function Landing() {
                       <span className="text-sm font-bold text-blue-400 font-mono">{step.num}</span>
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white dark:text-white text-gray-900 mb-1">{step.title}</h3>
-                      <p className="text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">{step.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{step.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -384,8 +384,8 @@ export default function Landing() {
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <h2 className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4">Trusted by thousands</h2>
-              <p className="text-gray-400">Real people, real health insights.</p>
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Trusted by thousands</h2>
+              <p className="text-gray-600 dark:text-gray-400">Real people, real health insights.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map((t, i) => (
@@ -395,7 +395,7 @@ export default function Landing() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-gray-900 dark:bg-gray-900 bg-white border border-gray-800 dark:border-gray-800 border-gray-200 rounded-2xl p-6"
+                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6"
                 >
                   <div className="flex items-center gap-1 mb-4">
                     {Array.from({ length: 5 }).map((_, s) => (
@@ -410,7 +410,7 @@ export default function Landing() {
                       className="w-10 h-10 rounded-xl object-cover"
                     />
                     <div>
-                      <p className="text-sm font-semibold text-white dark:text-white text-gray-900">{t.name}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">{t.name}</p>
                       <p className="text-xs text-gray-500">{t.role}</p>
                     </div>
                   </div>
@@ -429,7 +429,7 @@ export default function Landing() {
               viewport={{ once: true }}
               className="bg-gradient-to-br from-blue-600/20 via-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-3xl p-12"
             >
-              <h2 className="text-4xl font-bold text-white dark:text-white text-gray-900 mb-4">
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 Start understanding your health today
               </h2>
               <p className="text-gray-400 mb-8">
