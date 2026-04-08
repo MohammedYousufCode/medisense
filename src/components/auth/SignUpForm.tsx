@@ -86,7 +86,7 @@ export default function SignUpForm() {
                 type="text"
                 {...register('full_name')}
                 placeholder="Your full name"
-                className="input-dark dark:input-dark light:input-light pl-9"
+                className="input-dark dark:input-dark light:input-light pl-12 placeholder:text-gray-500"
               />
             </div>
             {errors.full_name && (
@@ -105,7 +105,7 @@ export default function SignUpForm() {
                 type="email"
                 {...register('email')}
                 placeholder="you@example.com"
-                className="input-dark dark:input-dark light:input-light pl-9"
+                className="input-dark dark:input-dark light:input-light pl-12 placeholder:text-gray-500"
               />
             </div>
             {errors.email && (
@@ -124,7 +124,7 @@ export default function SignUpForm() {
                 type="password"
                 {...register('password')}
                 placeholder="Min. 6 characters"
-                className="input-dark dark:input-dark light:input-light pl-9"
+                className="input-dark dark:input-dark light:input-light pl-12 placeholder:text-gray-500"
               />
             </div>
             {errors.password && (
@@ -143,7 +143,7 @@ export default function SignUpForm() {
                 type="password"
                 {...register('confirm_password')}
                 placeholder="Repeat password"
-                className="input-dark dark:input-dark light:input-light pl-9"
+                className="input-dark dark:input-dark light:input-light pl-12 placeholder:text-gray-500"
               />
             </div>
             {errors.confirm_password && (
