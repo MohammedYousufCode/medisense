@@ -58,12 +58,12 @@ export default function LoginForm() {
               Email
             </label>
             <div className="relative">
-              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
               <input
                 type="email"
                 {...register('email')}
                 placeholder="you@example.com"
-                className="input-dark dark:input-dark light:input-light pl-12 placeholder:text-gray-400"
+                className="input-dark dark:input-dark light:input-light pl-14 placeholder:text-gray-400"
               />
             </div>
             {errors.email && (
@@ -77,12 +77,12 @@ export default function LoginForm() {
               Password
             </label>
             <div className="relative">
-              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
               <input
                 type="password"
                 {...register('password')}
                 placeholder="••••••••"
-                className="input-dark dark:input-dark light:input-light pl-12 placeholder:text-gray-400"
+                className="input-dark dark:input-dark light:input-light pl-14 placeholder:text-gray-400"
               />
             </div>
             {errors.password && (
