@@ -20,7 +20,7 @@ type PipelineStep = 'idle' | 'uploading' | 'ai' | 'saving' | 'done' | 'error'
 const stepLabels: Record<PipelineStep, string> = {
   idle: 'Ready',
   uploading: 'Uploading file...',
-  ai: 'Analyzing with Gemini AI...',       // Gemini now handles everything
+  ai: 'Analyzing with Groq AI...',       // Gemini now handles everything
   saving: 'Saving your report...',
   done: 'Analysis complete!',
   error: 'Something went wrong',
