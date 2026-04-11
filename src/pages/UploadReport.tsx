@@ -195,7 +195,7 @@ export default function UploadReport() {
                   or click to browse files
                 </p>
                 <div className="flex items-center justify-center gap-3 flex-wrap">
-                  {['PDF', 'JPEG', 'PNG', 'WEBP'].map((t) => (
+                  {['PDF', 'JPEG'].map((t) => (
                     <span
                       key={t}
                       className="text-xs px-3 py-1 rounded-full bg-gray-800 dark:bg-gray-800 light:bg-gray-100 text-gray-400 border border-gray-700 dark:border-gray-700 light:border-gray-200"
