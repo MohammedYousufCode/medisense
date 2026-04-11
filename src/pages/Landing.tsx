@@ -114,7 +114,7 @@ export default function Landing() {
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-6"
                 >
                   <Zap className="w-3 h-3" />
-                  Powered by Google Gemini 1.5 Flash
+                  Powered by Groq Llama-3.3-70B
                 </motion.div>
 
                 <motion.h1
