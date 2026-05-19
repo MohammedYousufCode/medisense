@@ -9,18 +9,19 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import { useAuthContext } from '../context/AuthContext'
 import { analyzeReportFile } from '../services/geminiService'
 import { useGemini } from '../hooks/useGemini'
+import { extractTextFromImage } from '../services/ocrService'
 import { uploadReportFile } from '../services/storageService'
 import { createReport } from '../services/reportService'
 import { validateFile, formatFileSize, isImageFile } from '../lib/helpers'
 import { ROUTES, SUPPORTED_FILE_TYPES } from '../lib/constants'
 
-type PipelineStep = 'idle' | 'uploading' | 'ai' | 'saving' | 'done' | 'error'
+type PipelineStep = 'idle' | 'uploading' | 'ocr' | 'ai' | 'saving' | 'done' | 'error'
 
-// ✅ Remove 'ocr' entry, update 'ai' label
 const stepLabels: Record<PipelineStep, string> = {
   idle: 'Ready',
   uploading: 'Uploading file...',
-  ai: 'Analyzing with Groq AI...',       // Gemini now handles everything
+  ocr: 'Reading image with OCR...',
+  ai: 'Analyzing with Groq AI...',
   saving: 'Saving your report...',
   done: 'Analysis complete!',
   error: 'Something went wrong',
@@ -38,6 +39,7 @@ export default function UploadReport() {
   const [fileError, setFileError] = useState<string | null>(null)
   const [step, setStep] = useState<PipelineStep>('idle')
   const [isDragging, setIsDragging] = useState(false)
+  const [ocrProgress, setOcrProgress] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = (selected: File) => {
@@ -86,51 +88,61 @@ export default function UploadReport() {
   }
 
   const runPipeline = async () => {
-  if (!file || !user) return
+    if (!file || !user) return
 
-  try {
-    // Step 1: Upload to Supabase Storage
-    setStep('uploading')
-    const filePath = await uploadReportFile(file, user.id)
+    try {
+      // Step 1: Upload to Supabase Storage
+      setStep('uploading')
+      const filePath = await uploadReportFile(file, user.id)
 
-    // Step 2: Skip OCR — send PDF/image directly to Gemini
-    setStep('ai')
-    const aiResult = await analyzeReportFile(file)
+      // Step 2: OCR for image files (C2/L1 fix)
+      let extractedText = ''
+      if (isImageFile(file.type)) {
+        setStep('ocr')
+        setOcrProgress(0)
+        const ocrResult = await extractTextFromImage(file, (p) => setOcrProgress(p))
+        extractedText = ocrResult.text
+      }
 
-    // Step 3: Save to DB
-    setStep('saving')
-    const report = await createReport({
-      user_id: user.id,
-      file_name: file.name,
-      file_type: file.type,
-      file_url: filePath,
-      extracted_text: '',           // No OCR needed anymore
-      simplified_text: aiResult?.simplified_text ?? null,
-      parameters: aiResult?.parameters ?? [],
-      advice: aiResult?.advice ?? [],
-      overall_status: aiResult?.overall_status ?? 'unknown',
-      status: 'completed',
-    })
+      // Step 3: AI analysis — pass OCR text for images so AI has real content
+      setStep('ai')
+      const aiResult = await analyzeReportFile(file, extractedText || undefined)
 
-    setStep('done')
-    setTimeout(() => {
-      navigate(`${ROUTES.REPORT}/${report.id}`)
-    }, 1200)
-  } catch (err: any) {
-    console.error('Pipeline error:', err)
-    setStep('error')
+      // Step 4: Save to DB
+      setStep('saving')
+      const report = await createReport({
+        user_id: user.id,
+        file_name: file.name,
+        file_type: file.type,
+        file_url: filePath,
+        extracted_text: extractedText,
+        simplified_text: aiResult?.simplified_text ?? null,
+        parameters: aiResult?.parameters ?? [],
+        advice: aiResult?.advice ?? [],
+        overall_status: aiResult?.overall_status ?? 'unknown',
+        status: 'completed',
+      })
+
+      setStep('done')
+      setTimeout(() => {
+        navigate(`${ROUTES.REPORT}/${report.id}`)
+      }, 1200)
+    } catch (err: any) {
+      console.error('Pipeline error:', err)
+      setStep('error')
+    }
   }
-}
 
 
-  const isProcessing = ['uploading', 'ocr', 'ai', 'saving'].includes(step)
+  const isProcessing = (['uploading', 'ocr', 'ai', 'saving'] as PipelineStep[]).includes(step)
 
   const pipelineSteps = [
-  { key: 'uploading', label: 'Upload' },
-  { key: 'ai', label: 'AI Analysis' },
-  { key: 'saving', label: 'Save' },
-  { key: 'done', label: 'Done' },
-]
+    { key: 'uploading', label: 'Upload' },
+    { key: 'ocr', label: 'OCR' },
+    { key: 'ai', label: 'AI Analysis' },
+    { key: 'saving', label: 'Save' },
+    { key: 'done', label: 'Done' },
+  ]
 
   const currentStepIndex = pipelineSteps.findIndex((s) => s.key === step)
 
@@ -302,7 +314,20 @@ export default function UploadReport() {
                    step === 'error' ? <AlertCircle size={16} /> :
                    <LoadingSpinner size={16} />}
                   {stepLabels[step]}
+                  {step === 'ocr' && ocrProgress > 0 && (
+                    <span className="text-gray-500 text-xs ml-1">({ocrProgress}%)</span>
+                  )}
                 </div>
+
+                {/* OCR progress bar */}
+                {step === 'ocr' && (
+                  <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${ocrProgress}%` }}
+                    />
+                  </div>
+                )}
 
               
 

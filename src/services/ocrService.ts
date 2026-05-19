@@ -23,6 +23,10 @@ export async function extractTextFromImage(
           onProgress(Math.round(m.progress * 100))
         }
       },
+      // PSM 6 = uniform block of text — best for medical report tables/columns
+      // preserve_interword_spaces keeps column spacing so normal ranges aren't lost
+      tessedit_pageseg_mode: '6',
+      preserve_interword_spaces: '1',
     })
 
     const text = result.data.text.trim()
@@ -82,7 +86,7 @@ export async function extractTextFromPDF(
     let ocrText = ''
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i)
-      const scale = 2.0
+      const scale = 3.0  // 3× upscale for better multi-column table accuracy
       const viewport = page.getViewport({ scale })
       const canvas = document.createElement('canvas')
       canvas.width = viewport.width

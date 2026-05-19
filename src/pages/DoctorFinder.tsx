@@ -165,7 +165,10 @@ const loadDoctors = useCallback(async (lat: number, lng: number, radius: number)
 
 const getLocation = useCallback(() => {
   if (!navigator.geolocation) {
-    setLocationError('Geolocation is not supported by your browser.')
+    const MYSORE: [number, number] = [12.2979, 76.6392]
+    setLocationError('Geolocation is not supported by your browser — showing results near Mysore.')
+    setUserLocation(MYSORE)
+    loadDoctors(MYSORE[0], MYSORE[1], radiusKm)
     return
   }
 
@@ -182,16 +185,23 @@ const getLocation = useCallback(() => {
     },
     (err) => {
       setLoadingLocation(false)
+      // M4: For every error case, fall back to Mysore and still load doctors
+      const MYSORE: [number, number] = [12.2979, 76.6392]
       switch (err.code) {
         case err.PERMISSION_DENIED:
-          setLocationError('Location access denied. Please allow location in your browser settings.')
+          setLocationError(
+            'Location access denied — showing results near Mysore. Allow location in browser settings for accurate results.'
+          )
           break
         case err.POSITION_UNAVAILABLE:
-          setLocationError('Location information unavailable. Try again.')
+          setLocationError('Location unavailable — showing results near Mysore.')
           break
         default:
-          setLocationError('Could not get your location. Please try again.')
+          setLocationError('Could not get your location — showing results near Mysore.')
       }
+      // Always load with Mysore fallback so the map and list are never empty
+      setUserLocation(MYSORE)
+      loadDoctors(MYSORE[0], MYSORE[1], radiusKm)
     },
     { timeout: 10000, enableHighAccuracy: true }
   )

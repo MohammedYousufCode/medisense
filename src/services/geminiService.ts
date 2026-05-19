@@ -24,22 +24,23 @@ const PROMPT = `
 You are a medical report analyzer. Analyze the following medical report text and respond ONLY with a valid JSON object (no markdown, no explanation).
 
 STRICT RULES:
-1. NEVER invent or assume any values — only use what is explicitly in the text
-2. Extract ALL parameters/tests mentioned in the report
-3. If a value is marked High/Low/Abnormal, set status to "abnormal"
-4. If a value is near the edge of normal range, set status to "borderline"
-5. Respond ONLY with raw JSON — no markdown, no backticks
+1. Extract ALL parameters/tests mentioned in the report using their exact values
+2. For "normal_range": if the report explicitly states a reference range, use it. If the report does NOT include a normal range for a parameter, use your medical knowledge to provide the standard internationally accepted normal range for that test (e.g. Neutrophils: 50-70%, Lymphocytes: 20-40%, Haemoglobin: 13.5-17.5 g/dL for males). NEVER write "unknown" for normal_range if you know the standard range.
+3. For "status": compare the extracted value against the normal range (from the report or from your medical knowledge) and set "normal", "borderline", or "abnormal" accordingly. Only use "unknown" if you genuinely cannot determine the range AND cannot compare.
+4. If a value is marked High/Low/Abnormal in the report, always set status to "abnormal"
+5. If a value is near the edge of normal range, set status to "borderline"
+6. Respond ONLY with raw JSON — no markdown, no backticks
 
 JSON structure:
 {
-  "simplified_text": "2-3 sentence plain English summary using ONLY actual values from the report",
+  "simplified_text": "2-3 sentence plain English summary using the actual values from the report",
   "overall_status": "normal" | "borderline" | "abnormal" | "unknown",
   "parameters": [
   {
     "name": "exact parameter name",
     "value": "exact numeric value as string",
     "unit": "exact unit",
-    "normal_range": "exact reference range",
+    "normal_range": "standard range (from report or medical knowledge — never leave as unknown if known)",
     "status": "normal" | "borderline" | "abnormal" | "unknown",
     "description": "1 sentence plain English explanation of what this test measures"
   }
@@ -47,7 +48,7 @@ JSON structure:
 
   "advice": [
   "For each ABNORMAL finding, give a specific actionable step",
-  "Include specific iron-rich or relevant foods by name",
+  "Include specific relevant foods by name",
   "Include a specific lifestyle recommendation",
   "State urgency: routine checkup vs see doctor within X days",
   "Suggest any follow-up test that would help"
@@ -78,7 +79,13 @@ async function extractPDFText(file: File): Promise<string> {
   }
 }
 
-export async function analyzeReportFile(file: File): Promise<GeminiAnalysis> {
+// C2/L1: accepts optional pre-extracted OCR text for image files.
+// When extractedText is supplied (from Tesseract), it is used directly
+// instead of the useless filename-only fallback.
+export async function analyzeReportFile(
+  file: File,
+  extractedText?: string
+): Promise<GeminiAnalysis> {
   const apiKey = import.meta.env.VITE_GROQ_API_KEY
 
   if (!apiKey) {
@@ -87,13 +94,15 @@ export async function analyzeReportFile(file: File): Promise<GeminiAnalysis> {
   }
 
   try {
-    // Extract text from PDF first
     let reportText = ''
-    if (file.type === 'application/pdf') {
+    if (extractedText && extractedText.length >= 20) {
+      // Use OCR-extracted text passed in from the upload pipeline
+      reportText = extractedText
+    } else if (file.type === 'application/pdf') {
       reportText = await extractPDFText(file)
     } else {
-      // For images, use filename as hint and send raw
-      reportText = `Image file: ${file.name}`
+      // No OCR text supplied — caller should have run OCR before calling this
+      reportText = `Image file: ${file.name} (no text extracted)`
     }
 
     if (!reportText || reportText.length < 20) {
