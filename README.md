@@ -220,4 +220,3 @@ Add a `vercel.json` at the project root to handle SPA routing:
 ## License
 
 Academic project — NIEFGC, Mysore, 2025–26. Not licensed for commercial use.
-hhh

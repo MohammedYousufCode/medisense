@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useAuthContext } from '../context/AuthContext'
 import { motion } from 'framer-motion'
 import jsPDF from 'jspdf'
 import {
@@ -50,6 +51,7 @@ const cardVariants = {
 export default function ReportDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuthContext()
 
   const [report, setReport] = useState<Report | null>(null)
   const [loading, setLoading] = useState(true)
@@ -58,14 +60,15 @@ export default function ReportDetail() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    if (!id) return
+    // H1: require both a report id and an authenticated user before fetching
+    if (!id || !user) return
     setLoading(true)
     setError(null)
-    getReportById(id)
+    getReportById(id, user.id)
       .then(setReport)
       .catch((err) => setError(err.message || 'Failed to load report'))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, user])
 
   const handleExportPDF = () => {
     if (!report) return

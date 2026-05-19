@@ -26,6 +26,7 @@ import { supabase } from '../lib/supabase'
 import { signOut } from '../services/authService'
 import { profileUpdateSchema, type ProfileUpdateFormData } from '../lib/validators'
 import { ROUTES } from '../lib/constants'
+import { deleteAllUserFiles } from '../services/reportService'
 
 const cardVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -121,7 +122,9 @@ export default function Settings() {
     if (!user || deleteInput !== 'DELETE') return
     setDeleting(true)
     try {
-      // Delete all reports
+      // C4: Delete all Storage files before removing DB rows
+      await deleteAllUserFiles(user.id)
+      // Delete all reports from DB
       await supabase.from('reports').delete().eq('user_id', user.id)
       // Delete profile
       await supabase.from('profiles').delete().eq('id', user.id)

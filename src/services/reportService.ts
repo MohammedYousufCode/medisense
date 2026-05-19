@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { sendAnalysisCompleteEmail } from './emailService'
+import { deleteReportFile } from './storageService'
 import type { Report } from '../lib/types'
 
 export async function getUserReports(userId: string): Promise<Report[]> {
@@ -13,11 +14,13 @@ export async function getUserReports(userId: string): Promise<Report[]> {
   return (data as Report[]) ?? []
 }
 
-export async function getReportById(id: string): Promise<Report> {
+// H1: ownership check added — user_id must match authenticated user
+export async function getReportById(id: string, userId: string): Promise<Report> {
   const { data, error } = await supabase
     .from('reports')
     .select('*')
     .eq('id', id)
+    .eq('user_id', userId)
     .single()
 
   if (error) throw error
@@ -37,7 +40,6 @@ export async function createReport(
   if (error) throw error
   if (!data) throw new Error('Failed to create report')
 
-  // Send email notification if completed
   if (data.status === 'completed') {
     const { data: profile } = await supabase
       .from('profiles')
@@ -77,13 +79,48 @@ export async function updateReport(
   return data as Report
 }
 
+// C3: Fetch file_url first, delete DB row, then clean up Storage (best-effort)
 export async function deleteReport(id: string): Promise<void> {
+  const { data: row } = await supabase
+    .from('reports')
+    .select('file_url')
+    .eq('id', id)
+    .single()
+
   const { error } = await supabase
     .from('reports')
     .delete()
     .eq('id', id)
 
   if (error) throw error
+
+  if (row?.file_url) {
+    deleteReportFile(row.file_url).catch((err) =>
+      console.warn('[MediSense] Storage cleanup failed for report', id, err)
+    )
+  }
+}
+
+// C4: Delete all Storage files for a user before account deletion
+export async function deleteAllUserFiles(userId: string): Promise<void> {
+  const { data: rows } = await supabase
+    .from('reports')
+    .select('file_url')
+    .eq('user_id', userId)
+
+  const paths = (rows ?? [])
+    .map((r: any) => r.file_url)
+    .filter((p: any): p is string => !!p)
+
+  if (paths.length > 0) {
+    const { error: storageError } = await supabase.storage
+      .from('reports')
+      .remove(paths)
+
+    if (storageError) {
+      console.warn('[MediSense] Partial storage cleanup error:', storageError)
+    }
+  }
 }
 
 export async function getReportStats(userId: string) {
