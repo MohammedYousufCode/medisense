@@ -25,8 +25,8 @@ export async function extractTextFromImage(
       },
       // PSM 6 = uniform block of text — best for medical report tables/columns
       // preserve_interword_spaces keeps column spacing so normal ranges aren't lost
-      tessedit_pageseg_mode: '6',
-      preserve_interword_spaces: '1',
+      // Cast to any because Tesseract's TS types don't expose these config keys
+      ...({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' } as any),
     })
 
     const text = result.data.text.trim()
