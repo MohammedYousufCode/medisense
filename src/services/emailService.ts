@@ -4,6 +4,12 @@ const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string
 
+// EmailJS must be initialised with the public key before any send() call.
+// Without this, send() silently fails even when all three env vars are present.
+if (PUBLIC_KEY) {
+  emailjs.init(PUBLIC_KEY)
+}
+
 export interface EmailPayload {
   to_email: string
   to_name: string
