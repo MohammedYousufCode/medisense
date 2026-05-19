@@ -52,7 +52,7 @@ export async function createReport(
 
     // Send if email_notifications is true OR null (null = user never changed the setting,
     // treat as opted-in by default). Only skip if explicitly set to false.
-    if (profile?.email_notifications !== false && email) {
+    if (profile && profile.email_notifications !== false && email) {
       await sendAnalysisCompleteEmail(
         email,
         profile.full_name ?? 'User',
